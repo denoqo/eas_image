@@ -188,7 +188,7 @@ server <- function(input, output) {
     # sig
     siganno <- sig() %>% left_join(annodata)
     mat_band <- dplyr::count(siganno, sample_id, band) %>% 
-      spread(band, n, fill = 0) %>% 
+      spread(band, n) %>% 
       column_to_rownames("sample_id")
     return(mat_band)
   })
