@@ -1,3 +1,6 @@
+library(BiocManager)
+options(repos = BiocManager::repositories())
+
 library(tidyverse)
 library(patchwork)
 library(DT)

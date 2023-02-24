@@ -5,9 +5,9 @@ account: chi-xu
 server: shinyapps.io
 hostUrl: https://api.shinyapps.io/v1
 appId: 8386979
-bundleId: 6881056
+bundleId: 6881320
 url: https://chi-xu.shinyapps.io/EASingature/
-when: 1677190482.94299
-lastSyncTime: 1677190482.943
+when: 1677196687.79877
+lastSyncTime: 1677196687.79877
 asMultiple: FALSE
 asStatic: FALSE
