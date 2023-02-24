@@ -20,6 +20,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
         libv8-dev \
         libxml2-dev \
         tcl-dev \
+	libharfbuzz-dev \
+	libfribidi-dev \
         tk-dev \
     && rm -rf /var/lib/apt/lists/*
 
