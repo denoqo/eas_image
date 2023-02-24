@@ -33,10 +33,10 @@ ENV RENV_PATHS_LIBRARY renv/library
 
 # mounting cache can speed up if running locally. If you comment this in, 
 # be sure to comment out the other RUN R command.
-# RUN --mount=type=cache,target=/var/cache/renv R -e "renv::restore()"
+RUN --mount=type=cache,target=/var/cache/renv R -e "renv::restore()"
 
 
-RUN R -e "renv::restore()"
+# RUN R -e "renv::restore()"
 
 # remove demo apps
 RUN rm -rf /srv/shiny-server/*
