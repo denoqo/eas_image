@@ -12,75 +12,77 @@ source("R/global.R")
 
 # Define UI for application that draws a histogram
 ui <- fluidPage(
-
-    # Application title
-    titlePanel("Gene Signatures Expressed Amplification"),
-
-    # Sidebar with a slider input for number of bins 
-    sidebarLayout(
-        sidebarPanel(
-            selectInput("tcga_code",label = "Cancer Type", choices = tcga_codes, selected="chol_tcga"),
-            selectInput("gene_scope", label = "Gene Scope", choices = c("Oncogene"="onco", "genome-wide" =  "gw"), selected="gw"),
-            selectInput("mols_id", label = "Data type", multiple = T,
-                        selected = c("gistic", "rppa_Zscores"), 
-                        choices =c("gistic", "rna_seq_v2_mrna_median_Zscores", "rppa_Zscores")),
-            selectInput("clin_selected", label = "Clinical Features",
-                        selected = c(
-                          "Overall Survival Status",
-                          "Overall Survival (Months)",
-                          "TMB (nonsynonymous)", 
-                          "Fraction Genome Altered", 
-                          "Neoplasm Histologic Grade",
-                          "Sex"), 
-                        multiple = TRUE, selectize = T,
-                        choice = clin_colnames),
-            selectInput("cna_cut", label = "CNA(levels) >=", choices = c(0,1,2), selected=1),
-            selectInput("mrna_cut", label = "mRNA(z-score) >=", choices = c(0,1,2), selected=2),
-            selectInput("rppa_cut", label = "Protein(z-score) >=", choices = c(0,1,2), selected=2),
-        ),
-
-        mainPanel(
-          
-          tabsetPanel(
-            tabPanel(
-              title = "Samples",
-              uiOutput("gene_summary"),
-              hr(),h1("Survival Curves"),
-              plotOutput("survialPlot"),
-              hr(),h1("Sample Groups"),
-              fluidRow(
-                DTOutput("tableSampleGroup") %>% column(width = 6),
-                plotOutput("plotSampleGroup") %>% column(width = 6)
-              )
-              
-              
-            ),
-            
-            
-            tabPanel(
-              title = "Clinical",
-              shinysky::busyIndicator(text = "Loading...", wait = 0),
-              hr(),h1("Clinical Summary"),
-              gt::gt_output("gt_asso"),
-              hr(),h1("Clinical Visualization"),
-              uiOutput("ui_boxbarPlot")
-            ),
-            
-            
-            tabPanel(
-              title = "Signature",
-              hr(),h1("Signature Visualization"),
-              uiOutput("uiOncoSig"),
-              hr(),h1("Signature list"),
-              DTOutput("tableSig"),
-              hr(),h1("Chromosome bands"),
-              tableOutput("bandSig")
-            )
+  
+  # Application title
+  titlePanel("Gene Signatures Expressed Amplification"),
+  
+  # Sidebar with a slider input for number of bins 
+  sidebarLayout(
+    sidebarPanel(
+      selectInput("tcga_code",label = "Cancer Type", choices = tcga_codes, selected="chol_tcga"),
+      selectInput("gene_scope", label = "Gene Scope", choices = c("Oncogene"="onco", "genome-wide" =  "gw"), selected="gw"),
+      selectInput("mols_id", label = "Data type", multiple = T,
+                  selected = c("gistic", "rppa_Zscores"), 
+                  choices =c("gistic", "rna_seq_v2_mrna_median_Zscores", "rppa_Zscores")),
+      selectInput("clin_selected", label = "Clinical Features",
+                  selected = c(
+                    "Overall Survival Status",
+                    "Overall Survival (Months)",
+                    "TMB (nonsynonymous)", 
+                    "Fraction Genome Altered", 
+                    "Neoplasm Histologic Grade",
+                    "Sex"), 
+                  multiple = TRUE, selectize = T,
+                  choice = clin_colnames),
+      selectInput("cna_cut", label = "CNA(levels) >=", choices = c(0,1,2), selected=1),
+      selectInput("mrna_cut", label = "mRNA(z-score) >=", choices = c(0,1,2), selected=2),
+      selectInput("rppa_cut", label = "Protein(z-score) >=", choices = c(0,1,2), selected=2),
+    ),
+    
+    mainPanel(
+      
+      tabsetPanel(
+        tabPanel(
+          title = "Samples",
+          uiOutput("gene_summary"),
+          hr(),h1("Survival Curves"),
+          plotOutput("survialPlot"),
+          hr(),h1("Sample Groups"),
+          fluidRow(
+            DTOutput("tableSampleGroup") %>% column(width = 6),
+            plotOutput("plotSampleGroup") %>% column(width = 6)
           )
           
           
+        ),
+        
+        
+        tabPanel(
+          title = "Clinical",
+          shinysky::busyIndicator(text = "Loading...", wait = 0),
+          hr(),h1("Clinical Summary"),
+          gt::gt_output("gt_asso"),
+          hr(),h1("Clinical Visualization"),
+          uiOutput("ui_boxbarPlot")
+        ),
+        
+        
+        tabPanel(
+          title = "Signature",
+          hr(),h1("Signature Visualization"),
+          radioButtons("sortBand", "Sort by Chr?", 
+                       selected = F, choices= c(F,T)),
+          uiOutput("uiOncoSig"),
+          hr(),h1("Signature list"),
+          DTOutput("tableSig"),
+          hr(),h1("Chromosome bands"),
+          tableOutput("bandSig")
         )
+      )
+      
+      
     )
+  )
 )
 
 
@@ -120,7 +122,7 @@ server <- function(input, output) {
         cna_cut = input$cna_cut,
         mrna_cut = input$mrna_cut,
         rppa_cut = input$rppa_cut
-        )
+      )
     }
     return(sig)
   })
@@ -141,7 +143,7 @@ server <- function(input, output) {
     # select clincial feature
     select(clin_specific(), group, sample_id, all_of(input$clin_selected))
   })
- 
+  
   
   output$gene_summary <- renderUI({
     ngenes <- length(unique(sig()[["gene"]]))
@@ -150,10 +152,10 @@ server <- function(input, output) {
     
     return(
       fluidRow(align = "center",
-        hr(),h1("Brief Suammry"),
-        h4(glue::glue("There are {ngenes} genes with alterations in {nsampl} samples. ")),
-        h4(glue::glue("The total sample number is {totalSamples} samples.")),
-        
+               hr(),h1("Brief Suammry"),
+               h4(glue::glue("There are {ngenes} genes with alterations in {nsampl} samples. ")),
+               h4(glue::glue("The total sample number is {totalSamples} samples.")),
+               
       )
     )
   })
@@ -174,13 +176,15 @@ server <- function(input, output) {
     sig()
   })
   output$oncoSig <- renderPlot(res=96,{
-    ht = DrawOnco(sig(),samples(),T)
+    ht = DrawOnco(sig(),samples(),annorow = T, sortBand = input$sortBand)
     return(ht)
   })
   output$uiOncoSig <- renderUI({
     lengene <- length(unique(sig()$gene))
     hei = ifelse(lengene < 100, lengene * 25, 2000)
     wid = sprintf("%spx", length(samples()) * 16+100)
+    
+    
     plotOutput("oncoSig", width = "100%",
                height = sprintf("%spx", hei))
   })
@@ -188,8 +192,7 @@ server <- function(input, output) {
     # sig
     siganno <- sig() %>% left_join(annodata)
     mat_band <- dplyr::count(siganno, sample_id, band) %>% 
-      spread(band, n) %>% 
-      column_to_rownames("sample_id")
+      spread(band, n)
     return(mat_band)
   })
   
@@ -204,9 +207,9 @@ server <- function(input, output) {
   
   
   
-
   
-
+  
+  
 }
 
 # Run the application 

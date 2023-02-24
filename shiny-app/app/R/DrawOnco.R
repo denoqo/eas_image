@@ -1,7 +1,8 @@
 
 
 
-DrawOnco <- function(sig, samples, fullsample = T, top_n = 100, annorow = T){
+DrawOnco <- function(sig, samples, fullsample = T, top_n = 100, annorow = T, 
+                     sortBand = F){
   dataeas <- sig %>% mutate(value = "Alt") 
   
   top_gene <- dplyr::count(dataeas, gene, sort = T) %>% 
@@ -36,10 +37,8 @@ DrawOnco <- function(sig, samples, fullsample = T, top_n = 100, annorow = T){
     names(my_colors) <- band_ele
     
     ha <- ComplexHeatmap::HeatmapAnnotation(
-      df = anno,
-      which = c("row"),
-      col = list(targetable = c("Targetable" =  "red"),
-                 band = my_colors)
+      df = anno, 
+      which = c("row")
     )
     
     ha2 = rowAnnotation(
@@ -51,7 +50,13 @@ DrawOnco <- function(sig, samples, fullsample = T, top_n = 100, annorow = T){
   }
   
   
-  ht <- ComplexHeatmap::oncoPrint(mat, right_annotation = ha2, left_annotation = ha) 
+  ht <- ComplexHeatmap::oncoPrint(mat,
+                                  right_annotation = ha2, left_annotation = ha) 
+  
+  if (sortBand) {
+    ht <- ComplexHeatmap::oncoPrint(mat, row_split = anno$band,
+                                    right_annotation = ha2, left_annotation = ha) 
+  }
   return(ht)
 }
 
